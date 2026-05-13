@@ -31,6 +31,7 @@ function App() {
 
   useEffect(() => {
     fetchEmpleados();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showMessage = (text, type = 'success') => {
