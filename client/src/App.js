@@ -9,7 +9,7 @@ function App() {
   const [edad, setEdad] = useState('');
   const [pais, setPais] = useState('');
   const [cargo, setCargo] = useState('');
-  const [anios, setAnios] = useState('');
+  const [experiencia, setexperiencia] = useState('');
   const [empleados, setEmpleados] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [errors, setErrors] = useState({});
@@ -46,7 +46,7 @@ function App() {
     if (!edad || Number(edad) <= 0) newErrors.edad = 'Edad debe ser mayor a 0.';
     if (!pais.trim()) newErrors.pais = 'País es obligatorio.';
     if (!cargo.trim()) newErrors.cargo = 'Cargo es obligatorio.';
-    if (anios === '' || Number(anios) < 0) newErrors.anios = 'Años debe ser 0 o más.';
+    if (experiencia === '' || Number(experiencia) < 0) newErrors.experiencia = 'Años debe ser 0 o más.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -56,7 +56,7 @@ function App() {
     setEdad('');
     setPais('');
     setCargo('');
-    setAnios('');
+    setexperiencia('');
     setEditingId(null);
     setErrors({});
   };
@@ -65,7 +65,7 @@ function App() {
     if (!validateForm()) return;
     setLoading(true);
 
-    const payload = { nombre, edad: Number(edad), pais, cargo, anios: Number(anios) };
+    const payload = { nombre, edad: Number(edad), pais, cargo, experiencia: Number(experiencia) };
     const request = editingId
       ? Axios.put(`${API_URL}/api/update/${editingId}`, payload)
       : Axios.post(`${API_URL}/api/create`, payload);
@@ -88,7 +88,7 @@ function App() {
     setEdad(empleado.edad.toString());
     setPais(empleado.pais);
     setCargo(empleado.cargo);
-    setAnios(empleado.anios.toString());
+    setexperiencia(empleado.experiencia.toString());
     setEditingId(empleado.id);
     setErrors({});
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -109,7 +109,7 @@ function App() {
       .finally(() => setLoading(false));
   };
 
-  const isFormValid = nombre && edad && pais && cargo && anios !== '' && Number(edad) > 0 && Number(anios) >= 0;
+  const isFormValid = nombre && edad && pais && cargo && experiencia !== '' && Number(edad) > 0 && Number(experiencia) >= 0;
 
   return (
     <div className="App">
@@ -178,13 +178,13 @@ function App() {
             <div className="field">
               <label>Años de experiencia</label>
               <input
-                value={anios}
-                onChange={(e) => setAnios(e.target.value)}
+                value={experiencia}
+                onChange={(e) => setexperiencia(e.target.value)}
                 type="number"
                 min="0"
                 placeholder="Ej. 4"
               />
-              {errors.anios && <small className="error-text">{errors.anios}</small>}
+              {errors.experiencia && <small className="error-text">{errors.experiencia}</small>}
             </div>
 
             <div className="actions">
@@ -233,7 +233,7 @@ function App() {
                         <td>{empleado.edad}</td>
                         <td>{empleado.pais}</td>
                         <td>{empleado.cargo}</td>
-                        <td>{empleado.anios} {empleado.anios === 1 ? 'año' : 'años'}</td>
+                        <td>{empleado.experiencia} {empleado.experiencia === 1 ? 'año' : 'años'}</td>
                         <td className="cell-actions">
                           <button className="edit" onClick={() => editEmpleado(empleado)}>
                             ✏️ Editar

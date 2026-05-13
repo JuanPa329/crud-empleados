@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'ID inválido' });
   }
 
-  const { nombre, edad, pais, cargo, anios } = req.body;
+  const { nombre, edad, pais, cargo, experiencia } = req.body;
 
   if (!nombre || !pais || !cargo) {
     return res.status(400).json({ error: 'Faltan campos obligatorios' });
@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
   try {
     const { error } = await supabase
       .from('empleados')
-      .update({ nombre, edad: Number(edad), pais, cargo, anios: Number(anios) })
+      .update({ nombre, edad: Number(edad), pais, cargo, experiencia: Number(experiencia) })
       .eq('id', Number(id));
 
     if (error) {

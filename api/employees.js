@@ -34,7 +34,7 @@ module.exports = async (req, res) => {
 
   // POST /api/employees  → create
   if (req.method === 'POST') {
-    const { nombre, edad, pais, cargo, anios } = req.body;
+    const { nombre, edad, pais, cargo, experiencia } = req.body;
 
     if (!nombre || !pais || !cargo) {
       return res.status(400).json({ error: 'Faltan campos obligatorios' });
@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
     try {
       const { data, error } = await supabase
         .from('empleados')
-        .insert([{ nombre, edad: Number(edad), pais, cargo, anios: Number(anios) }])
+        .insert([{ nombre, edad: Number(edad), pais, cargo, experiencia: Number(experiencia) }])
         .select();
 
       if (error) {
