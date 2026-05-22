@@ -1,10 +1,5 @@
-const { createClient } = require('@supabase/supabase-js');
 const { requireAuth, setCorsHeaders } = require('../_utils/auth');
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabase = require('../_utils/supabase');
 
 module.exports = async (req, res) => {
   setCorsHeaders(res, ['DELETE']);
@@ -20,15 +15,11 @@ module.exports = async (req, res) => {
   const parts = req.url.split('/');
   const id = parts[parts.length - 1];
 
-  if (!id || isNaN(Number(id))) {
-    return res.status(400).json({ error: 'ID inválido' });
-  }
-
   try {
     const { data, error } = await supabase
       .from('empleados')
       .delete()
-      .eq('id', Number(id))
+      .eq('id', id)
       .select()
       .maybeSingle();
 

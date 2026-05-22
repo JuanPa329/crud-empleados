@@ -1,11 +1,6 @@
-const { createClient } = require('@supabase/supabase-js');
 const { requireAuth, setCorsHeaders } = require('./_utils/auth');
+const supabase = require('./_utils/supabase');
 const { validateEmployeePayload } = require('./_utils/validation');
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
 
 module.exports = async (req, res) => {
   setCorsHeaders(res, ['GET', 'POST']);

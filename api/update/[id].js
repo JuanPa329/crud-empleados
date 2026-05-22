@@ -1,11 +1,6 @@
-const { createClient } = require('@supabase/supabase-js');
 const { requireAuth, setCorsHeaders } = require('../_utils/auth');
+const supabase = require('../_utils/supabase');
 const { validateEmployeePayload } = require('../_utils/validation');
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
 
 module.exports = async (req, res) => {
   setCorsHeaders(res, ['PUT']);
@@ -21,10 +16,6 @@ module.exports = async (req, res) => {
   const parts = req.url.split('/');
   const id = parts[parts.length - 1];
 
-  if (!id || isNaN(Number(id))) {
-    return res.status(400).json({ error: 'ID inválido' });
-  }
-
   const { data: employee, errors } = validateEmployeePayload(req.body);
 
   if (errors) {
@@ -35,7 +26,7 @@ module.exports = async (req, res) => {
     const { data, error } = await supabase
       .from('empleados')
       .update(employee)
-      .eq('id', Number(id))
+      .eq('id', id)
       .select()
       .maybeSingle();
 
