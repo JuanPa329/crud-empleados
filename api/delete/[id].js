@@ -1,4 +1,5 @@
 const { requireAuth, setCorsHeaders } = require('../_utils/auth');
+const { getEmployeeId } = require('../_utils/request');
 const supabase = require('../_utils/supabase');
 
 module.exports = async (req, res) => {
@@ -11,11 +12,13 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
-  // Extract id from URL: /api/delete/123
-  const parts = req.url.split('/');
-  const id = parts[parts.length - 1];
+  const id = getEmployeeId(req);
 
   try {
+    if (!id) {
+      return res.status(404).json({ error: 'Empleado no encontrado' });
+    }
+
     const { data, error } = await supabase
       .from('empleados')
       .delete()

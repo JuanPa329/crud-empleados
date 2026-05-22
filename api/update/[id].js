@@ -1,4 +1,5 @@
 const { requireAuth, setCorsHeaders } = require('../_utils/auth');
+const { getEmployeeId } = require('../_utils/request');
 const supabase = require('../_utils/supabase');
 const { validateEmployeePayload } = require('../_utils/validation');
 
@@ -12,9 +13,7 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
-  // Extract id from URL: /api/update/123
-  const parts = req.url.split('/');
-  const id = parts[parts.length - 1];
+  const id = getEmployeeId(req);
 
   const { data: employee, errors } = validateEmployeePayload(req.body);
 
@@ -23,6 +22,10 @@ module.exports = async (req, res) => {
   }
 
   try {
+    if (!id) {
+      return res.status(404).json({ error: 'Empleado no encontrado' });
+    }
+
     const { data, error } = await supabase
       .from('empleados')
       .update(employee)

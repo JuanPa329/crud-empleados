@@ -74,7 +74,7 @@ function App() {
     if (!validateForm()) return;
     setLoading(true);
 
-    const payload = { nombre, edad: Number(edad), pais, cargo, experiencia: Number(experiencia) };
+    const payload = { id: editingId, nombre, edad: Number(edad), pais, cargo, experiencia: Number(experiencia) };
     const request = editingId
       ? apiClient.put(`/api/update/${editingId}`, payload)
       : apiClient.post('/api/create', payload);
@@ -106,7 +106,7 @@ function App() {
   const deleteEmpleado = (id) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar este empleado?')) return;
     setLoading(true);
-    apiClient.delete(`/api/delete/${id}`)
+    apiClient.delete(`/api/delete/${id}`, { data: { id } })
       .then(() => {
         fetchEmpleados();
         showMessage('Empleado eliminado con éxito.', 'success');
