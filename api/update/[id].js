@@ -1,4 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
+const { requireAuth, setCorsHeaders } = require('../_utils/auth');
+const { validateEmployeePayload } = require('../_utils/validation');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -6,11 +8,10 @@ const supabase = createClient(
 );
 
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'PUT, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  setCorsHeaders(res, ['PUT']);
 
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (!requireAuth(req, res)) return;
 
   if (req.method !== 'PUT') {
     return res.status(405).json({ error: 'Método no permitido' });
@@ -24,24 +25,30 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'ID inválido' });
   }
 
-  const { nombre, edad, pais, cargo, experiencia } = req.body;
+  const { data: employee, errors } = validateEmployeePayload(req.body);
 
-  if (!nombre || !pais || !cargo) {
-    return res.status(400).json({ error: 'Faltan campos obligatorios' });
+  if (errors) {
+    return res.status(400).json({ error: 'Datos invalidos', details: errors });
   }
 
   try {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('empleados')
-      .update({ nombre, edad: Number(edad), pais, cargo, experiencia: Number(experiencia) })
-      .eq('id', Number(id));
+      .update(employee)
+      .eq('id', Number(id))
+      .select()
+      .maybeSingle();
 
     if (error) {
       console.error('Supabase UPDATE error:', error);
       return res.status(500).json({ error: 'Error al actualizar empleado' });
     }
 
-    return res.status(200).json({ message: 'Empleado actualizado con éxito' });
+    if (!data) {
+      return res.status(404).json({ error: 'Empleado no encontrado' });
+    }
+
+    return res.status(200).json({ message: 'Empleado actualizado con éxito', data });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Error interno del servidor' });

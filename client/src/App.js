@@ -3,6 +3,15 @@ import { useEffect, useState } from 'react';
 import Axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || '';
+const API_SECRET_TOKEN = process.env.REACT_APP_API_SECRET_TOKEN || '';
+const apiClient = Axios.create({
+  baseURL: API_URL,
+  headers: API_SECRET_TOKEN
+    ? {
+        Authorization: `Bearer ${API_SECRET_TOKEN}`,
+      }
+    : {},
+});
 
 function App() {
   const [nombre, setNombre] = useState('');
@@ -20,7 +29,7 @@ function App() {
 
   const fetchEmpleados = () => {
     setFetching(true);
-    Axios.get(`${API_URL}/api/employees`)
+    apiClient.get('/api/employees')
       .then((response) => setEmpleados(response.data))
       .catch((error) => {
         console.error(error);
@@ -67,8 +76,8 @@ function App() {
 
     const payload = { nombre, edad: Number(edad), pais, cargo, experiencia: Number(experiencia) };
     const request = editingId
-      ? Axios.put(`${API_URL}/api/update/${editingId}`, payload)
-      : Axios.post(`${API_URL}/api/create`, payload);
+      ? apiClient.put(`/api/update/${editingId}`, payload)
+      : apiClient.post('/api/create', payload);
 
     request
       .then(() => {
@@ -97,7 +106,7 @@ function App() {
   const deleteEmpleado = (id) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar este empleado?')) return;
     setLoading(true);
-    Axios.delete(`${API_URL}/api/delete/${id}`)
+    apiClient.delete(`/api/delete/${id}`)
       .then(() => {
         fetchEmpleados();
         showMessage('Empleado eliminado con éxito.', 'success');

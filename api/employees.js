@@ -1,4 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
+const { requireAuth, setCorsHeaders } = require('./_utils/auth');
+const { validateEmployeePayload } = require('./_utils/validation');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -6,12 +8,10 @@ const supabase = createClient(
 );
 
 module.exports = async (req, res) => {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  setCorsHeaders(res, ['GET', 'POST']);
 
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (!requireAuth(req, res)) return;
 
   // GET /api/employees
   if (req.method === 'GET') {
@@ -34,16 +34,16 @@ module.exports = async (req, res) => {
 
   // POST /api/employees  → create
   if (req.method === 'POST') {
-    const { nombre, edad, pais, cargo, experiencia } = req.body;
+    const { data: employee, errors } = validateEmployeePayload(req.body);
 
-    if (!nombre || !pais || !cargo) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    if (errors) {
+      return res.status(400).json({ error: 'Datos invalidos', details: errors });
     }
 
     try {
       const { data, error } = await supabase
         .from('empleados')
-        .insert([{ nombre, edad: Number(edad), pais, cargo, experiencia: Number(experiencia) }])
+        .insert([employee])
         .select();
 
       if (error) {
